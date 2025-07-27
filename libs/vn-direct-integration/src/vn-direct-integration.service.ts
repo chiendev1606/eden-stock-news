@@ -1,36 +1,41 @@
-import { HttpService } from '@nestjs/axios';
-import {
-  Injectable,
-  InternalServerErrorException,
-  Logger,
-} from '@nestjs/common';
-import { VnDirectStockItem } from './vn-direct-integration.type';
+import { Injectable, Logger } from '@nestjs/common';
+import { NewsApi, StocksApi } from './client/generated';
 
 @Injectable()
 export class VnDirectIntegrationService {
   private logger = new Logger(VnDirectIntegrationService.name);
-  constructor(private httpService: HttpService) {}
+  constructor(
+    private stocksApi: StocksApi,
+    private newsApi: NewsApi,
+  ) {}
 
-  async getVnDirectStock(): Promise<VnDirectStockItem[] | undefined> {
+  async getVnDirectStock() {
     try {
       this.logger.log('staring getting stock data from vn direct');
-      const res = await this.httpService
-        .request<{ data: VnDirectStockItem[] }>({
-          baseURL: 'https://api-finfo.vndirect.com.vn/v4/stocks',
-          method: 'get',
-          params: {
-            q: 'type:STOCK~status:LISTED',
-            size: 3000,
-            field:
-              'code,companyName,companyNameEng,shortName,floor,industryName,price',
-          },
-        })
-        .toPromise();
+      const res = await this.stocksApi.getStocks({
+        q: 'type:STOCK~status:LISTED',
+        size: 3000,
+        fields:
+          'code,companyName,companyNameEng,shortName,floor,industryName,price',
+      });
 
-      return res?.data?.data;
+      console.log(res.data.data);
+
+      return res.data.data ?? [];
     } catch (error) {
-      this.logger.error(`error getting data`, error);
-      throw new InternalServerErrorException(error);
+      console.log(error);
+      // this.logger.error(`error getting data`, error);
+      // throw new InternalServerErrorException(error);
+    }
+  }
+
+  async getVnDirectNews() {
+    try {
+      this.logger.log('staring getting news data from vn direct');
+      const res = await this.newsApi.getNews();
+      console.log(res.data.data);
+    } catch (error) {
+      console.log(error);
     }
   }
 }

@@ -1,0 +1,457 @@
+openapi: 3.0.3
+info:
+  title: VNDIRECT Stock API
+  description: API để lấy thông tin cổ phiếu, ETF và các sản phẩm tài chính từ VNDIRECT
+  version: 4.0.0
+  contact:
+    name: VNDIRECT API Support
+    url: https://api-finfo.vndirect.com.vn
+servers:
+  - url: https://api-finfo.vndirect.com.vn/v4
+    description: Production server
+
+paths:
+  /stocks:
+    get:
+      summary: Lấy danh sách cổ phiếu và sản phẩm tài chính
+      description: Endpoint để truy vấn thông tin cổ phiếu, ETF, và các sản phẩm tài chính khác
+      operationId: getStocks
+      parameters:
+        - name: q
+          in: query
+          description: |
+            Query string để lọc dữ liệu. Hỗ trợ các bộ lọc:
+            - type: IFC, ETF, STOCK
+            - status: LISTED, DELISTED
+
+            Ví dụ: type:IFC,ETF,STOCK~status:LISTED
+          required: false
+          schema:
+            type: string
+            example: 'type:IFC,ETF,STOCK~status:LISTED'
+
+        - name: fields
+          in: query
+          description: |
+            Danh sách các trường dữ liệu cần trả về, phân cách bằng dấu phẩy.
+            Các trường có sẵn: code, companyName, companyNameEng, shortName, floor, industryName
+          required: false
+          schema:
+            type: string
+            example: 'code,companyName,companyNameEng,shortName,floor,industryName'
+
+        - name: size
+          in: query
+          description: Số lượng bản ghi tối đa trả về trong một trang
+          required: false
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 5000
+            default: 20
+            example: 3000
+
+        - name: page
+          in: query
+          description: Số trang (bắt đầu từ 1)
+          required: false
+          schema:
+            type: integer
+            minimum: 1
+            default: 1
+            example: 1
+
+      responses:
+        '200':
+          description: Thành công
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  currentPage:
+                    type: integer
+                    description: Trang hiện tại
+                    example: 1
+                  data:
+                    type: array
+                    description: Danh sách cổ phiếu/sản phẩm tài chính
+                    items:
+                      $ref: '#/components/schemas/Stock'
+                  size:
+                    type: integer
+                    description: Số lượng bản ghi trong trang hiện tại
+                    example: 1
+                  totalElements:
+                    type: integer
+                    description: Tổng số bản ghi
+                    example: 1
+                  totalPages:
+                    type: integer
+                    description: Tổng số trang
+                    example: 1
+                required:
+                  - currentPage
+                  - data
+                  - size
+                  - totalElements
+                  - totalPages
+              examples:
+                success_response:
+                  summary: Ví dụ response thành công
+                  value:
+                    currentPage: 1
+                    data:
+                      - code: 'FUETCC50'
+                        companyName: 'Quỹ ETF TECHCOM CAPITAL VNX50'
+                        floor: 'HOSE'
+                        shortName: 'Quỹ ETF TECHCOM CAPITAL VNX50'
+                        companyNameEng: 'TECHCOM CAPITAL VNX50 ETF'
+                    size: 1
+                    totalElements: 1
+                    totalPages: 1
+
+        '400':
+          description: Yêu cầu không hợp lệ
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              examples:
+                invalid_query:
+                  summary: Query không hợp lệ
+                  value:
+                    error: 'Invalid query parameter'
+                    message: 'Query format is incorrect'
+                    code: 400
+
+        '429':
+          description: Quá nhiều yêu cầu
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              examples:
+                rate_limit:
+                  summary: Giới hạn tốc độ
+                  value:
+                    error: 'Rate limit exceeded'
+                    message: 'Too many requests, please try again later'
+                    code: 429
+
+        '500':
+          description: Lỗi server
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              examples:
+                server_error:
+                  summary: Lỗi server nội bộ
+                  value:
+                    error: 'Internal server error'
+                    message: 'An unexpected error occurred'
+                    code: 500
+
+      tags:
+        - Stocks
+
+  /news:
+    get:
+      summary: Lấy danh sách tin tức tài chính
+      description: Endpoint để truy vấn tin tức về chứng khoán, ngân hàng và tài chính
+      operationId: getNews
+      parameters:
+        - name: q
+          in: query
+          description: |
+            Query string để lọc dữ liệu. Hỗ trợ các bộ lọc:
+            - newsSource: VNECONOMY, TAPCHICONGTHUONG, CAFEF, v.v.
+            - newsType: banking_finance_news, stock_news, company_news
+            - tagCodes: mã cổ phiếu (VD: GEE,SHB,HSG,HPG)
+            - newsDate: ngày tin tức (YYYY-MM-DD)
+
+            Ví dụ: newsSource:VNECONOMY,TAPCHICONGTHUONG~newsType:banking_finance_news,stock_news,company_news
+          required: false
+          schema:
+            type: string
+            example: 'newsSource:VNECONOMY,TAPCHICONGTHUONG~newsType:banking_finance_news,stock_news,company_news'
+
+        - name: sort
+          in: query
+          description: |
+            Sắp xếp kết quả. Hỗ trợ sắp xếp theo:
+            - newsDate: ngày tin tức (asc/desc)
+            - newsTime: thời gian tin tức (asc/desc)
+
+            Ví dụ: newsDate:desc~newsTime:desc
+          required: false
+          schema:
+            type: string
+            example: 'newsDate:desc~newsTime:desc'
+
+        - name: size
+          in: query
+          description: Số lượng bản ghi tối đa trả về trong một trang
+          required: false
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 100
+            default: 12
+            example: 12
+
+        - name: page
+          in: query
+          description: Số trang (bắt đầu từ 1)
+          required: false
+          schema:
+            type: integer
+            minimum: 1
+            default: 1
+            example: 1
+
+      responses:
+        '200':
+          description: Thành công
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  currentPage:
+                    type: integer
+                    description: Trang hiện tại
+                    example: 1
+                  data:
+                    type: array
+                    description: Danh sách tin tức
+                    items:
+                      $ref: '#/components/schemas/News'
+                  size:
+                    type: integer
+                    description: Số lượng bản ghi trong trang hiện tại
+                    example: 12
+                  totalElements:
+                    type: integer
+                    description: Tổng số bản ghi
+                    example: 150
+                  totalPages:
+                    type: integer
+                    description: Tổng số trang
+                    example: 13
+                required:
+                  - currentPage
+                  - data
+                  - size
+                  - totalElements
+                  - totalPages
+              examples:
+                success_response:
+                  summary: Ví dụ response thành công
+                  value:
+                    currentPage: 1
+                    data:
+                      - newsId: '10713362'
+                        newsGroup: 'stock_news'
+                        newsType: 'stock_news'
+                        tagCodes: 'GEE,SHB,HSG,HPG,DSC,STK'
+                        newsTitle: 'VN-Index liên tiếp lên đỉnh, nhiều nhà đầu tư vẫn không thể có lãi, thậm chí thua lỗ?'
+                        newsAbstract: 'Thị trường liên tục quay về mức đỉnh lịch sử ghi nhận năm 2022 nhưng khác với giai đoạn đó, không phải nhà đầu tư nào cũng có lãi...'
+                        thumbnailUrl: 'https://media.vneconomy.vn/w800/images/upload//2025/07/27/lo-tau-1.jpg'
+                        newsDate: '2025-07-27'
+                        newsTime: '11:37:07'
+                        newsSource: 'VNECONOMY'
+                        newsUrl: 'https://vneconomy.vn/vn-index-lien-tiep-len-dinh-nhieu-nha-dau-tu-van-khong-the-co-lai-tham-chi-thua-lo.htm'
+                        dstockUrl: 'https://dstock.vndirect.com.vn/tin-tuc/tin-chung-khoan/10713362'
+                        locale: 'VN'
+                        hotNews: 'N'
+                    size: 1
+                    totalElements: 150
+                    totalPages: 13
+
+        '400':
+          description: Yêu cầu không hợp lệ
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              examples:
+                invalid_query:
+                  summary: Query không hợp lệ
+                  value:
+                    error: 'Invalid query parameter'
+                    message: 'Query format is incorrect'
+                    code: 400
+
+        '429':
+          description: Quá nhiều yêu cầu
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              examples:
+                rate_limit:
+                  summary: Giới hạn tốc độ
+                  value:
+                    error: 'Rate limit exceeded'
+                    message: 'Too many requests, please try again later'
+                    code: 429
+
+        '500':
+          description: Lỗi server
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              examples:
+                server_error:
+                  summary: Lỗi server nội bộ
+                  value:
+                    error: 'Internal server error'
+                    message: 'An unexpected error occurred'
+                    code: 500
+
+      tags:
+        - News
+
+components:
+  schemas:
+    Stock:
+      type: object
+      description: Thông tin cổ phiếu hoặc sản phẩm tài chính
+      properties:
+        code:
+          type: string
+          description: Mã cổ phiếu/sản phẩm
+          example: 'FUETCC50'
+        companyName:
+          type: string
+          description: Tên công ty (tiếng Việt)
+          example: 'Quỹ ETF TECHCOM CAPITAL VNX50'
+        companyNameEng:
+          type: string
+          description: Tên công ty (tiếng Anh)
+          example: 'TECHCOM CAPITAL VNX50 ETF'
+        shortName:
+          type: string
+          description: Tên viết tắt
+          example: 'Quỹ ETF TECHCOM CAPITAL VNX50'
+        floor:
+          type: string
+          description: Sàn giao dịch
+          enum: [HOSE, HNX, UPCOM]
+          example: 'HOSE'
+        industryName:
+          type: string
+          description: Tên ngành
+          example: 'Quỹ đầu tư'
+
+    News:
+      type: object
+      description: Thông tin tin tức tài chính
+      properties:
+        newsId:
+          type: string
+          description: ID tin tức
+          example: '10713362'
+        newsGroup:
+          type: string
+          description: Nhóm tin tức
+          example: 'stock_news'
+        newsType:
+          type: string
+          description: Loại tin tức
+          enum: [stock_news, banking_finance_news, company_news]
+          example: 'stock_news'
+        tagCodes:
+          type: string
+          description: Mã cổ phiếu liên quan (phân cách bằng dấu phẩy)
+          example: 'GEE,SHB,HSG,HPG,DSC,STK'
+        newsTitle:
+          type: string
+          description: Tiêu đề tin tức
+          example: 'VN-Index liên tiếp lên đỉnh, nhiều nhà đầu tư vẫn không thể có lãi, thậm chí thua lỗ?'
+        newsAbstract:
+          type: string
+          description: Tóm tắt tin tức
+          example: 'Thị trường liên tục quay về mức đỉnh lịch sử ghi nhận năm 2022 nhưng khác với giai đoạn đó, không phải nhà đầu tư nào cũng có lãi...'
+        newsContent:
+          type: string
+          description: Nội dung tin tức đầy đủ (HTML)
+          example: '<html>...</html>'
+        thumbnailUrl:
+          type: string
+          description: URL ảnh thumbnail
+          example: 'https://media.vneconomy.vn/w800/images/upload//2025/07/27/lo-tau-1.jpg'
+        newsDate:
+          type: string
+          format: date
+          description: Ngày tin tức (YYYY-MM-DD)
+          example: '2025-07-27'
+        newsTime:
+          type: string
+          format: time
+          description: Thời gian tin tức (HH:mm:ss)
+          example: '11:37:07'
+        newsSource:
+          type: string
+          description: Nguồn tin tức
+          example: 'VNECONOMY'
+        newsUrl:
+          type: string
+          format: uri
+          description: URL gốc của tin tức
+          example: 'https://vneconomy.vn/vn-index-lien-tiep-len-dinh-nhieu-nha-dau-tu-van-khong-the-co-lai-tham-chi-thua-lo.htm'
+        dstockUrl:
+          type: string
+          format: uri
+          description: URL tin tức trên DStock
+          example: 'https://dstock.vndirect.com.vn/tin-tuc/tin-chung-khoan/10713362'
+        locale:
+          type: string
+          description: Ngôn ngữ tin tức
+          enum: [VN, EN]
+          example: 'VN'
+        hotNews:
+          type: string
+          description: Đánh dấu tin nóng
+          enum: [Y, N]
+          example: 'N'
+      required:
+        - newsId
+        - newsTitle
+        - newsDate
+        - newsTime
+        - newsSource
+
+    Error:
+      type: object
+      description: Thông tin lỗi
+      properties:
+        error:
+          type: string
+          description: Loại lỗi
+        message:
+          type: string
+          description: Mô tả chi tiết lỗi
+        code:
+          type: integer
+          description: Mã lỗi HTTP
+      required:
+        - error
+        - message
+        - code
+
+  securitySchemes:
+    ApiKeyAuth:
+      type: apiKey
+      in: header
+      name: X-API-Key
+      description: API key để xác thực (nếu cần thiết)
+
+tags:
+  - name: Stocks
+    description: Các API liên quan đến thông tin cổ phiếu và sản phẩm tài chính
+  - name: News
+    description: Các API liên quan đến tin tức tài chính

@@ -2,8 +2,7 @@ import { Global, Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
 
 import { ConfigServices } from './services/config.services';
-import { validate } from '../../config/validate-config';
-import { DatabaseModule } from '@app/database';
+import { validate } from '../config/validate-config';
 
 const shardServices = [ConfigServices];
 
@@ -15,7 +14,6 @@ const shardServices = [ConfigServices];
       validate,
       isGlobal: true,
     }),
-    DatabaseModule.forRoot(),
   ],
   exports: shardServices,
   providers: shardServices,

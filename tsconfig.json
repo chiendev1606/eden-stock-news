@@ -18,8 +18,18 @@
     "strictBindCallApply": false,
     "noFallthroughCasesInSwitch": false,
     "paths": {
-      "@app/http-eden-client": ["libs/vn-direct-integration/src"],
-      "@app/http-eden-client/*": ["libs/vn-direct-integration/src/*"]
+      "@app/database": [
+        "libs/database/src"
+      ],
+      "@app/database/*": [
+        "libs/database/src/*"
+      ],
+      "@app/http-eden-client": [
+        "libs/vn-direct-integration/src"
+      ],
+      "@app/http-eden-client/*": [
+        "libs/vn-direct-integration/src/*"
+      ]
     }
   }
 }

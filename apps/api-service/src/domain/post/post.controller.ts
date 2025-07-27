@@ -1,4 +1,4 @@
-import { Controller, Post } from '@nestjs/common';
+import { Controller, Get, Post } from '@nestjs/common';
 import { PostService } from './post.service';
 
 @Controller()
@@ -8,5 +8,10 @@ export class PostController {
   @Post('data/vn-direct')
   getVnDirectData() {
     return this.postService.processVnDirectData();
+  }
+
+  @Get('data/stock')
+  getStockData() {
+    return this.postService.getStockData();
   }
 }

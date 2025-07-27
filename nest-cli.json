@@ -28,13 +28,13 @@
         "tsConfigPath": "apps/cron-service/tsconfig.app.json"
       }
     },
-    "vn-direct-integration": {
+    "database": {
       "type": "library",
-      "root": "libs/vn-direct-integration",
+      "root": "libs/database",
       "entryFile": "index",
-      "sourceRoot": "libs/vn-direct-integration/src",
+      "sourceRoot": "libs/database/src",
       "compilerOptions": {
-        "tsConfigPath": "libs/vn-direct-integration/tsconfig.lib.json"
+        "tsConfigPath": "libs/database/tsconfig.lib.json"
       }
     },
     "stock-backend": {
@@ -44,6 +44,15 @@
       "sourceRoot": "apps/stock-backend/src",
       "compilerOptions": {
         "tsConfigPath": "apps/stock-backend/tsconfig.app.json"
+      }
+    },
+    "vn-direct-integration": {
+      "type": "library",
+      "root": "libs/vn-direct-integration",
+      "entryFile": "index",
+      "sourceRoot": "libs/vn-direct-integration/src",
+      "compilerOptions": {
+        "tsConfigPath": "libs/vn-direct-integration/tsconfig.lib.json"
       }
     }
   }

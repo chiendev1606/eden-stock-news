@@ -1,0 +1,22 @@
+{
+  "$schema": "./node_modules/@openapitools/openapi-generator-cli/config.schema.json",
+  "spaces": 2,
+  "generator-cli": {
+    "version": "7.6.0",
+    "generators": {
+      "vndirect": {
+        "generatorName": "typescript-axios",
+        "inputSpec": "libs/vn-direct-integration/src/openapi/oas.yaml",
+        "output": "libs/vn-direct-integration/src/client/generated",
+        "additionalProperties": {
+          "stringEnums": true,
+          "supportsES6": true,
+          "typescriptThreePlus": true,
+          "enumPropertyNaming": "original",
+          "useSingleRequestParameter": true,
+          "withNodeImports": true
+        }
+      }
+    }
+  }
+}
