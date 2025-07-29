@@ -22,7 +22,7 @@
     "test:e2e": "jest --config ./apps/stock-backend/test/jest-e2e.json",
     "prisma:generate-client": "npx prisma generate --schema=./prisma/schema.prisma",
     "prisma:migration:generate": "npx prisma migrate dev --schema=./prisma/schema.prisma",
-    "prisma:migration:deploy": "npx prisma deploy --schema=./prisma/schema.prisma",
+    "prisma:migration:deploy": "npx prisma migrate deploy --schema=./prisma/schema.prisma",
     "codegen": "openapi-generator-cli generate",
     "post-codegen": "pnpm lint"
   },

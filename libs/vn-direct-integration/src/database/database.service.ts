@@ -13,7 +13,7 @@ export class DatabaseService
   implements OnModuleInit, OnModuleDestroy
 {
   constructor() {
-    const dbUrl = process.env.DATABASE_URL;
+    const dbUrl = 'postgresql://user:password@localhost:5432/eden_stock_news';
     super({
       datasources: {
         db: {

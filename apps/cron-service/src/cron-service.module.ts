@@ -1,5 +1,4 @@
 import { Module } from '@nestjs/common';
-import { CronServiceController } from './cron-service.controller';
 import { CronServiceService } from './cron-service.service';
 import { VnDirectIntegrationModule } from '@app/http-eden-client';
 import { StockProcessorModule } from './context/stock-processor/stock-processor.module';
@@ -11,7 +10,6 @@ import { NewsProcessorModule } from './context/new-processor/news-processor.modu
     StockProcessorModule,
     NewsProcessorModule,
   ],
-  controllers: [CronServiceController],
   providers: [CronServiceService],
 })
 export class CronServiceModule {}

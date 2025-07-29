@@ -8,6 +8,6 @@ export class NewsProcessorServices {
   ) {}
 
   async processNews() {
-    const res = await this.vnDirectIntegrationService.getVnDirectNews();
+    await this.vnDirectIntegrationService.getVnDirectNews();
   }
 }

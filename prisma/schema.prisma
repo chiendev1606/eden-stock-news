@@ -16,7 +16,6 @@ model Stock {
   currentPrice  Float  @map("current_price")
   changePercent Float @map("change_percent")
   updatedAt     DateTime @updatedAt @map("updated_at")
-  vnDirectId    String? @map("vn_direct_id")
 
   posts Post[]
 }
@@ -30,6 +29,7 @@ model Post {
   createdAt   DateTime  @default(now()) @map("created_at")
   updatedAt   DateTime  @updatedAt @map("updated_at")
   stock       Stock?    @relation(fields: [stockId], references: [id])
+  vnDirectId  String?   @map("vn_direct_id")
   stockId     String?
 
   @@map("posts")

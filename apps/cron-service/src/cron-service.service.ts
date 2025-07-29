@@ -18,7 +18,7 @@ export class CronServiceService {
     const currentDay = now.getDay(); // 0 = Sunday, 1 = Monday, ..., 6 = Saturday
 
     // News everyday 7AM (Monday to Sunday)
-    if ([7, 15].includes(currentHour)) {
+    if ([22, 23].includes(currentHour)) {
       this.logger.log(`Processing news at ${currentHour}:00...`);
       await this.newsProcessorServices.processNews();
     }
