@@ -83,4 +83,10 @@ interface ServerMap {
  * @export
  */
 export const operationServerMap: ServerMap = {
+    "ChartDataApi.getStockHistory": [
+        {
+            url: "https://dchart-api.vndirect.com.vn",
+            description: "No description provided",
+        }
+    ],
 }

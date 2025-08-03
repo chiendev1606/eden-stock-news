@@ -1,36 +1,64 @@
 import { DynamicModule, Global, Module } from '@nestjs/common';
-import { ConfigService } from '@nestjs/config';
-import { constructDbUrl } from 'apps/api-service/utils/helpers';
 import { DatabaseService } from './database.service';
+import { AppConfigModule, AppConfigModuleOptions } from '@app/config';
+import { AppConfigService } from '@app/config';
 
-@Module({})
+export interface DatabaseModuleOptions {
+  /**
+   * Database connection string override
+   * If not provided, will use DATABASE_URL from config service
+   */
+  connectionString?: string;
+  /**
+   * Whether the module should be global
+   */
+  isGlobal?: boolean;
+  /**
+   * Whether to enable database query logging
+   */
+  enableLogging?: boolean;
+  /**
+   * Whether to enable database metrics
+   */
+  enableMetrics?: boolean;
+  /**
+   * Configuration module options
+   */
+  configOptions?: AppConfigModuleOptions;
+}
+
 @Global()
+@Module({})
 export class DatabaseModule {
-  static forRoot(): DynamicModule {
+  static forRoot(options: DatabaseModuleOptions = {}): DynamicModule {
+    const {
+      configOptions = {},
+      isGlobal = true,
+      enableLogging = false,
+      enableMetrics = false,
+      connectionString,
+    } = options;
+
+    const providers = [
+      {
+        provide: 'DATABASE_OPTIONS',
+        useFactory: (configService: AppConfigService) => ({
+          connectionString: connectionString || configService.getDatabaseUrl(),
+          isGlobal,
+          enableLogging,
+          enableMetrics,
+        }),
+        inject: [AppConfigService],
+      },
+      DatabaseService,
+    ];
+
     return {
       module: DatabaseModule,
-      providers: [
-        {
-          provide: DatabaseService,
-          inject: [ConfigService],
-          useFactory: (configService: ConfigService) => {
-            return new DatabaseService({
-              datasources: {
-                db: {
-                  url: constructDbUrl({
-                    DB_USERNAME: configService.get('DB_USERNAME') ?? '',
-                    DB_PASSWORD: configService.get('DB_PASSWORD') ?? '',
-                    DB_URL_HOST: configService.get('DB_URL_HOST') as string,
-                    DB_PORT: configService.get('DB_PORT') ?? 0,
-                    DB_NAME: configService.get('DB_NAME') ?? '',
-                  }),
-                },
-              },
-            });
-          },
-        },
-      ],
+      imports: [AppConfigModule.forRoot(configOptions)],
+      providers,
       exports: [DatabaseService],
+      global: isGlobal,
     };
   }
 }

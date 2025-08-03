@@ -1,9 +1,9 @@
 // src/cli.ts
 import { CommandFactory } from 'nest-commander';
-import { AppModule } from './app.module';
+import { AppCliModule } from './app-cli.module';
 
 async function bootstrap() {
-  await CommandFactory.run(AppModule, {
+  await CommandFactory.run(AppCliModule, {
     logger: ['error', 'warn', 'log'],
     errorHandler: (err) => {
       console.error('❌ Command failed:', err.message);

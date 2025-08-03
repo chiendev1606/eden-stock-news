@@ -1,8 +1,8 @@
-import { Module } from '@nestjs/common';
-import { CronServiceService } from './cron-service.service';
 import { VnDirectIntegrationModule } from '@app/http-eden-client';
-import { StockProcessorModule } from './context/stock-processor/stock-processor.module';
+import { Module } from '@nestjs/common';
 import { NewsProcessorModule } from './context/new-processor/news-processor.module';
+import { StockProcessorModule } from './context/stock-processor/stock-processor.module';
+import { CronServiceService } from './cron-service.service';
 
 @Module({
   imports: [

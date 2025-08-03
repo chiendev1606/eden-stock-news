@@ -8,7 +8,9 @@ info:
     url: https://api-finfo.vndirect.com.vn
 servers:
   - url: https://api-finfo.vndirect.com.vn/v4
-    description: Production server
+    description: Production server for stocks and news
+  - url: https://dchart-api.vndirect.com.vn
+    description: Production server for chart data
 
 paths:
   /stocks:
@@ -315,6 +317,121 @@ paths:
       tags:
         - News
 
+  /dchart/history:
+    get:
+      summary: Lấy dữ liệu lịch sử giá cổ phiếu
+      description: Endpoint để lấy dữ liệu OHLCV (Open, High, Low, Close, Volume) lịch sử của cổ phiếu
+      operationId: getStockHistory
+      servers:
+        - url: https://dchart-api.vndirect.com.vn
+      parameters:
+        - name: symbol
+          in: query
+          description: Mã cổ phiếu cần lấy dữ liệu
+          required: true
+          schema:
+            type: string
+            example: 'GEX'
+
+        - name: resolution
+          in: query
+          description: |
+            Độ phân giải thời gian của dữ liệu:
+            - 1: 1 phút
+            - 5: 5 phút
+            - 15: 15 phút
+            - 30: 30 phút
+            - 1H: 1 giờ
+            - 1D: 1 ngày
+            - 1W: 1 tuần
+            - 1M: 1 tháng
+          required: true
+          schema:
+            type: string
+            enum: ['1', '5', '15', '30', '1H', '1D', '1W', '1M']
+            example: '1D'
+
+        - name: from
+          in: query
+          description: Thời gian bắt đầu (Unix timestamp)
+          required: false
+          schema:
+            type: integer
+            format: int64
+            example: 1640995200
+
+        - name: to
+          in: query
+          description: Thời gian kết thúc (Unix timestamp)
+          required: false
+          schema:
+            type: integer
+            format: int64
+            example: 1672531200
+
+      responses:
+        '200':
+          description: Thành công
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StockHistoryData'
+              examples:
+                success_response:
+                  summary: Ví dụ response thành công
+                  value:
+                    s: 'ok'
+                    c: [25.5, 26.0, 25.8, 26.2]
+                    o: [25.0, 25.5, 26.0, 25.8]
+                    h: [26.0, 26.2, 26.1, 26.5]
+                    l: [24.8, 25.3, 25.7, 25.6]
+                    v: [1000000, 1200000, 950000, 1100000]
+                    t: [1640995200, 1641081600, 1641168000, 1641254400]
+
+        '400':
+          description: Yêu cầu không hợp lệ
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StockHistoryError'
+              examples:
+                invalid_symbol:
+                  summary: Mã cổ phiếu không hợp lệ
+                  value:
+                    s: 'no_data'
+                    nextTime: 1641340800
+
+        '429':
+          description: Quá nhiều yêu cầu
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              examples:
+                rate_limit:
+                  summary: Giới hạn tốc độ
+                  value:
+                    error: 'Rate limit exceeded'
+                    message: 'Too many requests, please try again later'
+                    code: 429
+
+        '500':
+          description: Lỗi server
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              examples:
+                server_error:
+                  summary: Lỗi server nội bộ
+                  value:
+                    error: 'Internal server error'
+                    message: 'An unexpected error occurred'
+                    code: 500
+
+      tags:
+        - Chart Data
+
 components:
   schemas:
     Stock:
@@ -425,6 +542,72 @@ components:
         - newsTime
         - newsSource
 
+    StockHistoryData:
+      type: object
+      description: Dữ liệu lịch sử giá cổ phiếu OHLCV
+      properties:
+        s:
+          type: string
+          description: Trạng thái response
+          enum: ['ok', 'no_data', 'error']
+          example: 'ok'
+        c:
+          type: array
+          items:
+            type: number
+          description: Mảng giá đóng cửa
+          example: [25.5, 26.0, 25.8, 26.2]
+        o:
+          type: array
+          items:
+            type: number
+          description: Mảng giá mở cửa
+          example: [25.0, 25.5, 26.0, 25.8]
+        h:
+          type: array
+          items:
+            type: number
+          description: Mảng giá cao nhất
+          example: [26.0, 26.2, 26.1, 26.5]
+        l:
+          type: array
+          items:
+            type: number
+          description: Mảng giá thấp nhất
+          example: [24.8, 25.3, 25.7, 25.6]
+        v:
+          type: array
+          items:
+            type: number
+          description: Mảng khối lượng giao dịch
+          example: [1000000, 1200000, 950000, 1100000]
+        t:
+          type: array
+          items:
+            type: integer
+            format: int64
+          description: Mảng timestamp (Unix time)
+          example: [1640995200, 1641081600, 1641168000, 1641254400]
+      required:
+        - s
+
+    StockHistoryError:
+      type: object
+      description: Lỗi khi lấy dữ liệu lịch sử
+      properties:
+        s:
+          type: string
+          description: Trạng thái lỗi
+          enum: ['no_data', 'error']
+          example: 'no_data'
+        nextTime:
+          type: integer
+          format: int64
+          description: Thời gian tiếp theo có dữ liệu (Unix timestamp)
+          example: 1641340800
+      required:
+        - s
+
     Error:
       type: object
       description: Thông tin lỗi
@@ -455,3 +638,5 @@ tags:
     description: Các API liên quan đến thông tin cổ phiếu và sản phẩm tài chính
   - name: News
     description: Các API liên quan đến tin tức tài chính
+  - name: Chart Data
+    description: Các API liên quan đến dữ liệu biểu đồ và lịch sử giá cổ phiếu

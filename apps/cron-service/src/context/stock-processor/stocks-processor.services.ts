@@ -8,7 +8,7 @@ export class StocksProcessorServices {
   ) {}
 
   async processStocks() {
-    const res = await this.vnDirectIntegrationService.getVnDirectStock();
+    const res = await this.vnDirectIntegrationService.crawlVnDirectStock();
     console.log(res);
   }
 }

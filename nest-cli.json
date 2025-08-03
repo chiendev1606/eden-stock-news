@@ -19,6 +19,15 @@
         "tsConfigPath": "apps/api-service/tsconfig.app.json"
       }
     },
+    "config": {
+      "type": "library",
+      "root": "libs/config",
+      "entryFile": "index",
+      "sourceRoot": "libs/config/src",
+      "compilerOptions": {
+        "tsConfigPath": "libs/config/tsconfig.lib.json"
+      }
+    },
     "cron-service": {
       "type": "application",
       "root": "apps/cron-service",
@@ -35,6 +44,24 @@
       "sourceRoot": "libs/database/src",
       "compilerOptions": {
         "tsConfigPath": "libs/database/tsconfig.lib.json"
+      }
+    },
+    "decorators": {
+      "type": "library",
+      "root": "libs/decorators",
+      "entryFile": "index",
+      "sourceRoot": "libs/decorators/src",
+      "compilerOptions": {
+        "tsConfigPath": "libs/decorators/tsconfig.lib.json"
+      }
+    },
+    "html-stripper": {
+      "type": "library",
+      "root": "libs/html-stripper",
+      "entryFile": "index",
+      "sourceRoot": "libs/html-stripper/src",
+      "compilerOptions": {
+        "tsConfigPath": "libs/html-stripper/tsconfig.lib.json"
       }
     },
     "stock-backend": {

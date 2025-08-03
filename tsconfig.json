@@ -16,20 +16,21 @@
     "forceConsistentCasingInFileNames": true,
     "noImplicitAny": false,
     "strictBindCallApply": false,
+    "esModuleInterop": true,
     "noFallthroughCasesInSwitch": false,
     "paths": {
-      "@app/database": [
-        "libs/database/src"
-      ],
-      "@app/database/*": [
-        "libs/database/src/*"
-      ],
-      "@app/http-eden-client": [
-        "libs/vn-direct-integration/src"
-      ],
-      "@app/http-eden-client/*": [
-        "libs/vn-direct-integration/src/*"
-      ]
+      "@app/config": ["libs/config/src"],
+      "@app/config/*": ["libs/config/src/*"],
+      "@app/database": ["libs/database/src", "libs/database/src"],
+      "@app/database/*": ["libs/database/src/*", "libs/database/src/*"],
+      "@app/decorators": ["libs/decorators/src"],
+      "@app/decorators/*": ["libs/decorators/src/*"],
+      "@app/html-stripper": ["libs/html-stripper/src"],
+      "@app/html-stripper/*": ["libs/html-stripper/src/*"],
+      "@app/http-eden-client": ["libs/vn-direct-integration/src"],
+      "@app/http-eden-client/*": ["libs/vn-direct-integration/src/*"],
+      "@app/shared": ["libs/shared/src"],
+      "@app/shared/*": ["libs/shared/src/*"]
     }
   }
 }

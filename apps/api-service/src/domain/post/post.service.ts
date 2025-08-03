@@ -1,13 +1,10 @@
-import { VnDirectIntegrationService } from 'libs/vn-direct-integration/src';
-import { Injectable, NotFoundException } from '@nestjs/common';
 import { DatabaseService } from '@app/database';
+import { Injectable, NotFoundException } from '@nestjs/common';
+import { PaginationType } from 'libs/decorators/pagination.decorator';
 
 @Injectable()
 export class PostService {
-  constructor(
-    private databaseService: DatabaseService,
-    private httpEdenService: VnDirectIntegrationService,
-  ) {}
+  constructor(private databaseService: DatabaseService) {}
 
   async findPostById(id: string) {
     const post = await this.databaseService.post.findUnique({ where: { id } });
@@ -19,24 +16,40 @@ export class PostService {
     return post;
   }
 
-  async getStockData() {
-    console.log(this.databaseService);
-    const stockData = await this.databaseService.stock.findMany();
-    return stockData;
-  }
+  async getPostsPaginationData(pagination: PaginationType, search: string) {
+    const [posts, total] = await Promise.all([
+      this.databaseService.post.findMany({
+        skip: pagination.limit,
+        take: pagination.size,
+        where: {
+          title: {
+            contains: search,
+          },
+        },
+        orderBy: {
+          createdAt: 'desc',
+        },
+        include: {
+          stock: true,
+        },
+      }),
+      this.databaseService.post.count({
+        where: {
+          title: {
+            contains: search,
+          },
+          content: {
+            contains: search,
+          },
+        },
+      }),
+    ]);
 
-  async processVnDirectData() {
-    const stockData = await this.httpEdenService.getVnDirectStock();
-    // await this.databaseService.stock.createMany({
-    //   data:
-    //     stockData?.map((stock) => ({
-    //       symbol: stock.code,
-    //       companyName: stock.companyName,
-    //       currentPrice: 0,
-    //       changePercent: 0,
-    //     })) ?? [],
-    //   skipDuplicates: true,
-    // });
-    return stockData;
+    return {
+      posts,
+      total,
+      page: pagination.page,
+      size: pagination.size,
+    };
   }
 }

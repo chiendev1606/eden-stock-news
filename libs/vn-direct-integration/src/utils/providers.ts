@@ -1,7 +1,9 @@
 import { HttpService } from '@nestjs/axios';
-import { FactoryProvider } from '@nestjs/common';
+import { FactoryProvider, InternalServerErrorException } from '@nestjs/common';
 import { AxiosInstance } from 'axios';
 import { Configuration } from '../client/generated';
+import { AppConfigService } from '@app/config';
+import { VnDirectConfigDto } from '@app/config/dto/vndirect-config.dto';
 
 export function injectApiProvider<T>(
   ApiClass: new (
@@ -9,12 +11,18 @@ export function injectApiProvider<T>(
     basePath?: string,
     axios?: AxiosInstance,
   ) => T,
+  configKey: keyof VnDirectConfigDto,
 ): FactoryProvider<T> {
   return {
     provide: ApiClass,
-    inject: [HttpService],
-    useFactory: (httpService: HttpService) => {
-      const basePath = 'https://api-finfo.vndirect.com.vn/v4';
+    inject: [HttpService, AppConfigService],
+    useFactory: (httpService: HttpService, configService: AppConfigService) => {
+      const basePath = configService.vndirect[configKey];
+
+      if (!basePath)
+        throw new InternalServerErrorException(
+          `${configKey} is required in the config`,
+        );
 
       const config = new Configuration({
         basePath: basePath,

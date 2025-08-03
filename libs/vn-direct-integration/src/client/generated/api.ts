@@ -303,6 +303,275 @@ export enum StockFloorEnum {
     UPCOM = 'UPCOM'
 }
 
+/**
+ * Dữ liệu lịch sử giá cổ phiếu OHLCV
+ * @export
+ * @interface StockHistoryData
+ */
+export interface StockHistoryData {
+    /**
+     * Trạng thái response
+     * @type {string}
+     * @memberof StockHistoryData
+     */
+    's': StockHistoryDataSEnum;
+    /**
+     * Mảng giá đóng cửa
+     * @type {Array<number>}
+     * @memberof StockHistoryData
+     */
+    'c'?: Array<number>;
+    /**
+     * Mảng giá mở cửa
+     * @type {Array<number>}
+     * @memberof StockHistoryData
+     */
+    'o'?: Array<number>;
+    /**
+     * Mảng giá cao nhất
+     * @type {Array<number>}
+     * @memberof StockHistoryData
+     */
+    'h'?: Array<number>;
+    /**
+     * Mảng giá thấp nhất
+     * @type {Array<number>}
+     * @memberof StockHistoryData
+     */
+    'l'?: Array<number>;
+    /**
+     * Mảng khối lượng giao dịch
+     * @type {Array<number>}
+     * @memberof StockHistoryData
+     */
+    'v'?: Array<number>;
+    /**
+     * Mảng timestamp (Unix time)
+     * @type {Array<number>}
+     * @memberof StockHistoryData
+     */
+    't'?: Array<number>;
+}
+
+/**
+    * @export
+    * @enum {string}
+    */
+export enum StockHistoryDataSEnum {
+    ok = 'ok',
+    no_data = 'no_data',
+    error = 'error'
+}
+
+/**
+ * Lỗi khi lấy dữ liệu lịch sử
+ * @export
+ * @interface StockHistoryError
+ */
+export interface StockHistoryError {
+    /**
+     * Trạng thái lỗi
+     * @type {string}
+     * @memberof StockHistoryError
+     */
+    's': StockHistoryErrorSEnum;
+    /**
+     * Thời gian tiếp theo có dữ liệu (Unix timestamp)
+     * @type {number}
+     * @memberof StockHistoryError
+     */
+    'nextTime'?: number;
+}
+
+/**
+    * @export
+    * @enum {string}
+    */
+export enum StockHistoryErrorSEnum {
+    no_data = 'no_data',
+    error = 'error'
+}
+
+
+/**
+ * ChartDataApi - axios parameter creator
+ * @export
+ */
+export const ChartDataApiAxiosParamCreator = function (configuration?: Configuration) {
+    return {
+        /**
+         * Endpoint để lấy dữ liệu OHLCV (Open, High, Low, Close, Volume) lịch sử của cổ phiếu
+         * @summary Lấy dữ liệu lịch sử giá cổ phiếu
+         * @param {string} symbol Mã cổ phiếu cần lấy dữ liệu
+         * @param {GetStockHistoryResolutionEnum} resolution Độ phân giải thời gian của dữ liệu: - 1: 1 phút - 5: 5 phút - 15: 15 phút - 30: 30 phút - 1H: 1 giờ - 1D: 1 ngày - 1W: 1 tuần - 1M: 1 tháng 
+         * @param {number} [from] Thời gian bắt đầu (Unix timestamp)
+         * @param {number} [to] Thời gian kết thúc (Unix timestamp)
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        getStockHistory: async (symbol: string, resolution: GetStockHistoryResolutionEnum, from?: number, to?: number, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+            // verify required parameter 'symbol' is not null or undefined
+            assertParamExists('getStockHistory', 'symbol', symbol)
+            // verify required parameter 'resolution' is not null or undefined
+            assertParamExists('getStockHistory', 'resolution', resolution)
+            const localVarPath = `/dchart/history`;
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+
+            const localVarRequestOptions = { method: 'GET', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            if (symbol !== undefined) {
+                localVarQueryParameter['symbol'] = symbol;
+            }
+
+            if (resolution !== undefined) {
+                localVarQueryParameter['resolution'] = resolution;
+            }
+
+            if (from !== undefined) {
+                localVarQueryParameter['from'] = from;
+            }
+
+            if (to !== undefined) {
+                localVarQueryParameter['to'] = to;
+            }
+
+
+    
+            setSearchParams(localVarUrlObj, localVarQueryParameter);
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+
+            return {
+                url: toPathString(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+    }
+};
+
+/**
+ * ChartDataApi - functional programming interface
+ * @export
+ */
+export const ChartDataApiFp = function(configuration?: Configuration) {
+    const localVarAxiosParamCreator = ChartDataApiAxiosParamCreator(configuration)
+    return {
+        /**
+         * Endpoint để lấy dữ liệu OHLCV (Open, High, Low, Close, Volume) lịch sử của cổ phiếu
+         * @summary Lấy dữ liệu lịch sử giá cổ phiếu
+         * @param {string} symbol Mã cổ phiếu cần lấy dữ liệu
+         * @param {GetStockHistoryResolutionEnum} resolution Độ phân giải thời gian của dữ liệu: - 1: 1 phút - 5: 5 phút - 15: 15 phút - 30: 30 phút - 1H: 1 giờ - 1D: 1 ngày - 1W: 1 tuần - 1M: 1 tháng 
+         * @param {number} [from] Thời gian bắt đầu (Unix timestamp)
+         * @param {number} [to] Thời gian kết thúc (Unix timestamp)
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async getStockHistory(symbol: string, resolution: GetStockHistoryResolutionEnum, from?: number, to?: number, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<StockHistoryData>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.getStockHistory(symbol, resolution, from, to, options);
+            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
+            const localVarOperationServerBasePath = operationServerMap['ChartDataApi.getStockHistory']?.[localVarOperationServerIndex]?.url;
+            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
+        },
+    }
+};
+
+/**
+ * ChartDataApi - factory interface
+ * @export
+ */
+export const ChartDataApiFactory = function (configuration?: Configuration, basePath?: string, axios?: AxiosInstance) {
+    const localVarFp = ChartDataApiFp(configuration)
+    return {
+        /**
+         * Endpoint để lấy dữ liệu OHLCV (Open, High, Low, Close, Volume) lịch sử của cổ phiếu
+         * @summary Lấy dữ liệu lịch sử giá cổ phiếu
+         * @param {ChartDataApiGetStockHistoryRequest} requestParameters Request parameters.
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        getStockHistory(requestParameters: ChartDataApiGetStockHistoryRequest, options?: RawAxiosRequestConfig): AxiosPromise<StockHistoryData> {
+            return localVarFp.getStockHistory(requestParameters.symbol, requestParameters.resolution, requestParameters.from, requestParameters.to, options).then((request) => request(axios, basePath));
+        },
+    };
+};
+
+/**
+ * Request parameters for getStockHistory operation in ChartDataApi.
+ * @export
+ * @interface ChartDataApiGetStockHistoryRequest
+ */
+export interface ChartDataApiGetStockHistoryRequest {
+    /**
+     * Mã cổ phiếu cần lấy dữ liệu
+     * @type {string}
+     * @memberof ChartDataApiGetStockHistory
+     */
+    readonly symbol: string
+
+    /**
+     * Độ phân giải thời gian của dữ liệu: - 1: 1 phút - 5: 5 phút - 15: 15 phút - 30: 30 phút - 1H: 1 giờ - 1D: 1 ngày - 1W: 1 tuần - 1M: 1 tháng 
+     * @type {'1' | '5' | '15' | '30' | '1H' | '1D' | '1W' | '1M'}
+     * @memberof ChartDataApiGetStockHistory
+     */
+    readonly resolution: GetStockHistoryResolutionEnum
+
+    /**
+     * Thời gian bắt đầu (Unix timestamp)
+     * @type {number}
+     * @memberof ChartDataApiGetStockHistory
+     */
+    readonly from?: number
+
+    /**
+     * Thời gian kết thúc (Unix timestamp)
+     * @type {number}
+     * @memberof ChartDataApiGetStockHistory
+     */
+    readonly to?: number
+}
+
+/**
+ * ChartDataApi - object-oriented interface
+ * @export
+ * @class ChartDataApi
+ * @extends {BaseAPI}
+ */
+export class ChartDataApi extends BaseAPI {
+    /**
+     * Endpoint để lấy dữ liệu OHLCV (Open, High, Low, Close, Volume) lịch sử của cổ phiếu
+     * @summary Lấy dữ liệu lịch sử giá cổ phiếu
+     * @param {ChartDataApiGetStockHistoryRequest} requestParameters Request parameters.
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     * @memberof ChartDataApi
+     */
+    public getStockHistory(requestParameters: ChartDataApiGetStockHistoryRequest, options?: RawAxiosRequestConfig) {
+        return ChartDataApiFp(this.configuration).getStockHistory(requestParameters.symbol, requestParameters.resolution, requestParameters.from, requestParameters.to, options).then((request) => request(this.axios, this.basePath));
+    }
+}
+
+/**
+  * @export
+  * @enum {string}
+  */
+export enum GetStockHistoryResolutionEnum {
+    _1 = '1',
+    _5 = '5',
+    _15 = '15',
+    _30 = '30',
+    _1H = '1H',
+    _1D = '1D',
+    _1W = '1W',
+    _1M = '1M'
+}
+
 
 /**
  * NewsApi - axios parameter creator
